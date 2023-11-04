@@ -38,6 +38,9 @@ class Grid {
 
     }
 
+
+    static restartIfCrash = false
+
     reset() {
         this.cells.forEach(c => {
             c.reset()
@@ -93,32 +96,37 @@ class Grid {
     proceedWave() {
         if (this.isFinished) return;
 
-        let nonVisitedCells = this.cells.filter(c=>!c.visited)
-        if(nonVisitedCells.length==0)
-        {
+        let nonVisitedCells = this.cells.filter(c => !c.visited)
+        if (nonVisitedCells.length == 0) {
+            console.log("All tiles have been filled.")
             this.isFinished = true; return;
         }
 
         //select random cell with minimum entropy
-        let minimumEntropy =  Math.min(...nonVisitedCells.map(c => c.entropy()));
+        let minimumEntropy = Math.min(...nonVisitedCells.map(c => c.entropy()));
 
         //get random cell with minimum entropy that is not collapsed/visited
-        this.currentCell = random(nonVisitedCells.filter(c=> c.entropy()==minimumEntropy))
+        this.currentCell = random(nonVisitedCells.filter(c => c.entropy() == minimumEntropy))
 
         //select random tile from its available options
         this.currentCell.selectRandomTile() //==collapse()
-        
+
         //consider cases of non-matching they should be empty
-        if(this.currentCell.assignedTile === undefined) 
-        {
-            console.log("Tiles cannot be fully filled. Restarting...")
-            this.reset() //start over
+        if (this.currentCell.assignedTile === undefined) {
+            if (Grid.restartIfCrash) {
+                console.log("Tiles cannot be fully filled. Restarting...")
+                this.reset() //start over
+            }
+            else {
+                console.log("Tiles cannot be fully filled. Stopped.")
+                this.isFinished = true;
+            }
             return;
         }
-        
+
         //reduce the entropy for each neighbor
         let neighbors = this.getUnvisitedNeighbors(this.currentCell)
-        neighbors.forEach(n=>n.reduceEntropy(this.currentCell))
+        neighbors.forEach(n => n.reduceEntropy(this.currentCell))
     }
 
     proceedMaze() { //maze algorithm

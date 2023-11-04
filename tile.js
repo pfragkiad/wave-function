@@ -22,6 +22,9 @@ class Tile {
     }
 
     getPixel(x, y) {
+        x = constrain(int(x),0,this.width-1) //Math.min(this.width-1,int(x)) //ensure integer
+        y = constrain(int(y),0,this.height-1) //Math.min(this.height-1,int(y)) //ensure integer
+       
         let o = 4 * this.density * (this.width * y + x)
         return color(
             this.pixels[o], this.pixels[o + 1],
