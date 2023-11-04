@@ -5,8 +5,8 @@ var cols = 10, rows = 10
 // var midpoints = [0.25, 0.5, 0.75]
 
 var base_path = "tiles_circuit"
-var from=0,to=12
-var midpoints = [0,0.25,0.5,0.75,0.95]
+var from=0,to=35
+var midpoints = [0.01,0.5,0.75]
 
 var grid, images = []
 
