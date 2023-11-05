@@ -16,6 +16,9 @@ let circuitTilesInfo = {
   extension: "png"
 }
 
+//TODO: Produce rotations
+//TODO: See explicitly matched candidates 
+
 const showAllSteps = false
 let tilesInfo = circuitTilesInfo 
 // let tilesInfo = mainTilesInfo

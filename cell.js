@@ -20,14 +20,14 @@ class Cell {
         this.assignedTile = random(this.options)
         if (this.assignedTile !== undefined) {
             this.options = [this.assignedTile]
-            this.visited = true
         }
         else 
         {
             this.options = []
-            this.visited = true
             console.error(`Cannot select tile for Cell(${this.i},${this.j})!`)
         }
+
+        this.visited = true
     }
 
     entropy() {
