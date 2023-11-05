@@ -1,56 +1,71 @@
-var cols = 10, rows = 10
+var cols = 20, rows = 20
 
-// var base_path = "./tiles_main"
-// var from=1,to= 5
-// var midpoints = [0.25, 0.5, 0.75]
+let mainTilesInfo = {
+  basePath: "tiles_main",
+  from: 1,
+  to: 5,
+  midPoints: [0.25, 0.5, 0.75],
+  extension: "png"
+}
 
-var base_path = "tiles_circuit"
-var from=0,to=35
-var midpoints = [0.01,0.5,0.75]
+let circuitTilesInfo = {
+  basePath: "tiles_circuit",
+  from: 0,
+  to: 35,
+  midPoints: [0, 0.5, 1.0],
+  extension: "png"
+}
 
+const showAllSteps = false
+let tilesInfo = circuitTilesInfo 
+// let tilesInfo = mainTilesInfo
 var grid, images = []
 
-function loadTiles(base_path, from, to, extension) {
-  for (let i = from; i <= to; i++) {
+function loadTileImages() {
+  for (let i = tilesInfo.from; i <= tilesInfo.to; i++) {
     //let fileName = i.toString().padStart(2, "0")
     let fileName = i.toString()
-    let img = loadImage(`${base_path}/${fileName}.${extension}`)
-    images.push(img) 
+    let img = loadImage(`${tilesInfo.basePath}/${fileName}.${tilesInfo.extension}`)
+    images.push(img)
     //tiles.push(new Tile(img)) //will not work!
   }
 }
 
 function preload() {
-  loadTiles(base_path, from,to, "png") 
+  loadTileImages()
 }
 
 function setup() {
   // put setup code here
   createCanvas(400, 400)
 
-  grid = new Grid(cols, rows, images, midpoints)
+  grid = new Grid(cols, rows, images, tilesInfo.midPoints)
+  Grid.restartIfCrash = true
   //console.log(tiles[1].up)  
-  
 
-  // let attempts = 0
-  // while(!grid.isFinished) {
-  //   attempts++
-  //   console.log(`Building tiles, attempt: #${attempts}`)
-  //   grid.proceedWave()
-  // }
+
+  if (!showAllSteps) {
+    let attempts = 0
+    while (!grid.isFinished) {
+      attempts++
+      console.log(`Building tiles, attempt: #${attempts}`)
+      grid.proceedWave()
+    }
+  }
   //frameRate(5) 
 }
 
- 
-function draw() {    
+
+function draw() {
   // put drawing code here
-  background(200)
+  background(20)
 
   grid.proceedWave()
-  grid.show() 
+  //grid.proceedMaze()
+  grid.show()
 
-  //grid.proceedMaze()    
-  if(grid.isFinished)
+
+  if (grid.isFinished)
     noLoop()
 
   // for(let j=0;j<rows;j++)
