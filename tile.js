@@ -1,6 +1,7 @@
 class Tile {
-    constructor(img, midpoints = null) {
+    constructor(img,id, midpoints = null) {
         this.image = img 
+        this.id = id
 
         //console.log(img)
 

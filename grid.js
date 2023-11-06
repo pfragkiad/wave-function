@@ -19,7 +19,8 @@ class Grid {
 
         //build tiles if images is passed
         if (images) {
-            this.tiles = images.map(img => new Tile(img, midpoints))
+            this.tiles = Object.keys(images).map(k=> new Tile(images[k],k,midpoints))
+            //this.tiles = images.map(img => new Tile(img, midpoints))
             //this.cells.forEach(c => c.setTileOptions(this.tiles))
         }
 

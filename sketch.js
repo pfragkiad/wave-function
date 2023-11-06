@@ -22,14 +22,14 @@ let circuitTilesInfo = {
 const showAllSteps = false
 let tilesInfo = circuitTilesInfo 
 // let tilesInfo = mainTilesInfo
-var grid, images = []
+var grid, images = {}
 
 function loadTileImages() {
   for (let i = tilesInfo.from; i <= tilesInfo.to; i++) {
     //let fileName = i.toString().padStart(2, "0")
     let fileName = i.toString()
     let img = loadImage(`${tilesInfo.basePath}/${fileName}.${tilesInfo.extension}`)
-    images.push(img)
+    images[i]= img
     //tiles.push(new Tile(img)) //will not work!
   }
 }
