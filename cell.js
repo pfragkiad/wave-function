@@ -34,7 +34,7 @@ class Cell {
         return this.options.length
     }
 
-    reduceEntropy(currentCell, tilesInfo = null) //this cell is the "neighbor" of the 
+    reduceEntropy(currentCell, tilesInfo) //this cell is the "neighbor" of the 
     {
         //keep only the tiles are compatible
         let currentTile = currentCell.assignedTile

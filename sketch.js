@@ -1,4 +1,4 @@
-var cols = 10, rows = 10
+var cols = rows = 20
 
 const TileContacts = {
   DOWN_UP: 1,
@@ -37,6 +37,10 @@ let circuitTilesInfo = {
   ]
 }
 
+//DONE: Dynamically find matches based on color information at edges.
+//DONE: Color information/sockets at edges controlled via midpoints.
+//DONE: Add exceptions that override the color-matching.
+
 //TODO: Produce rotations
 //TODO: See explicitly matched candidates 
 
@@ -61,13 +65,13 @@ function preload() {
 
 function setup() {
   // put setup code here
-  createCanvas(200, 200)
+  createCanvas(400, 400)
 
   grid = new Grid(cols, rows, tilesInfo)
   Grid.restartIfCrash = true
   //console.log(tiles[1].up)  
 
-  const showAllSteps = true
+  const showAllSteps = false
   if (!showAllSteps) {
     let attempts = 0
     while (!grid.isFinished) {

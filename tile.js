@@ -4,9 +4,7 @@ class Tile {
         this.id = id
         let midpoints = tilesInfo.midpoints
 
-        //console.log(img)
-
-        this.width = this.image.width
+          this.width = this.image.width
         this.height = this.image.height
         this.density = this.image.pixelDensity()
 
