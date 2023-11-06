@@ -5,7 +5,7 @@
 // }
 
 class Grid {
-    constructor(cols, rows, images = null, midpoints = null) {
+    constructor(cols, rows, tilesInfo) {
         this.cols = cols
         this.rows = rows
 
@@ -18,24 +18,24 @@ class Grid {
                 this.cells.push(new Cell(i, j))
 
         //build tiles if images is passed
-        if (images) {
-            this.tiles = Object.keys(images).map(k=> new Tile(images[k],k,midpoints))
-            //this.tiles = images.map(img => new Tile(img, midpoints))
-            //this.cells.forEach(c => c.setTileOptions(this.tiles))
-        }
+        this.tilesInfo = tilesInfo
+        this.tiles = Object.keys(tilesInfo.images).map(k => new Tile(k, tilesInfo))
+        //this.tiles = Object.keys(tilesInfo.images).map(k=> new Tile(tilesInfo.images[k],k,tilesInfo.midpoints))
+        //this.tiles = images.map(img => new Tile(img, midpoints))
 
 
         this.isFinished = false
 
-        this.isMaze = false
-        if (this.isMaze) {
-            //initialize (maze)
-            let firstCell = this.cells[0]
-            firstCell.assignedTile = this.tiles[2]
-            firstCell.visited = true
-            this.visitedCells = [firstCell] //stack
-        }
-        else this.reset()
+        // this.isMaze = false
+        // if (this.isMaze) {
+        //     //initialize (maze)
+        //     let firstCell = this.cells[0]
+        //     firstCell.assignedTile = this.tiles[2]
+        //     firstCell.visited = true
+        //     this.visitedCells = [firstCell] //stack
+        // }
+        
+        this.reset()
 
     }
 
@@ -68,28 +68,29 @@ class Grid {
         })
     }
 
-    getCellIndex(i, j) {
-        return i + j * this.rows
+    // getCellIndex(i, j) {
+    //     return i + j * this.rows
+    // }
+
+    getCell(i, j) {
+        return this.cells[i + j * this.rows]
     }
 
     getUnvisitedNeighbors(c) {
-        let neighbors = []
+        let neighbors = [], cell
 
-        let cellIndex = this.getCellIndex(c.i - 1, c.j)
-        if (c.i > 0 && !this.cells[cellIndex].visited)
-            neighbors.push(this.cells[cellIndex])
+        //let cellIndex = this.getCellIndex(c.i - 1, c.j)
+        cell = this.getCell(c.i - 1, c.j)
+        if (c.i > 0 && !cell.visited) neighbors.push(cell)
 
-        cellIndex = this.getCellIndex(c.i + 1, c.j)
-        if (c.i < this.cols - 1 && !this.cells[cellIndex].visited)
-            neighbors.push(this.cells[cellIndex])
+        cell = this.getCell(c.i + 1, c.j)
+        if (c.i < this.cols - 1 && !cell.visited) neighbors.push(cell)
 
-        cellIndex = this.getCellIndex(c.i, c.j - 1)
-        if (c.j > 0 && !this.cells[cellIndex].visited)
-            neighbors.push(this.cells[cellIndex])
+        cell = this.getCell(c.i, c.j - 1)
+        if (c.j > 0 && !cell.visited) neighbors.push(cell)
 
-        cellIndex = this.getCellIndex(c.i, c.j + 1)
-        if (c.j < this.rows - 1 && !this.cells[cellIndex].visited)
-            neighbors.push(this.cells[cellIndex])
+        cell = this.getCell(c.i, c.j + 1)
+        if (c.j < this.rows - 1 && !cell.visited) neighbors.push(cell)
 
         return neighbors
     }
@@ -127,78 +128,80 @@ class Grid {
 
         //reduce the entropy for each neighbor
         let neighbors = this.getUnvisitedNeighbors(this.currentCell)
-        neighbors.forEach(n => n.reduceEntropy(this.currentCell))
+
+        //here we should backup and check if we can reduce the entropy to a non-zero number
+        neighbors.forEach(n => n.reduceEntropy(this.currentCell, this.tilesInfo))
     }
 
-    proceedMaze() { //maze algorithm
-        if (this.isFinished) return
+    //     proceedMaze() { //maze algorithm
+    //         if (this.isFinished) return
 
-        this.currentCell = this.visitedCells.pop()
-        if (this.currentCell === undefined) {
-            this.isFinished = true; return;
-        }
+    //         this.currentCell = this.visitedCells.pop()
+    //         if (this.currentCell === undefined) {
+    //             this.isFinished = true; return;
+    //         }
 
-        //check if the current cells has any unvisited neibors (at least one)
-        let currentNeighbors = this.getUnvisitedNeighbors(this.currentCell)
-        while (currentNeighbors.length == 0) {
-            this.currentCell = this.visitedCells.pop()
-            if (this.currentCell === undefined) {
-                this.isFinished = true; return;
-            }
+    //         //check if the current cells has any unvisited neibors (at least one)
+    //         let currentNeighbors = this.getUnvisitedNeighbors(this.currentCell)
+    //         while (currentNeighbors.length == 0) {
+    //             this.currentCell = this.visitedCells.pop()
+    //             if (this.currentCell === undefined) {
+    //                 this.isFinished = true; return;
+    //             }
 
-            currentNeighbors = this.getUnvisitedNeighbors(this.currentCell)
-        }
+    //             currentNeighbors = this.getUnvisitedNeighbors(this.currentCell)
+    //         }
 
-        //console.log(currentNeighbors)
-        //push the current cell to the stack
-        this.visitedCells.push(this.currentCell)
+    //         //console.log(currentNeighbors)
+    //         //push the current cell to the stack
+    //         this.visitedCells.push(this.currentCell)
 
-        //choose one of the unvisited neighbors
-        let randomNeighbor = random(currentNeighbors)
+    //         //choose one of the unvisited neighbors
+    //         let randomNeighbor = random(currentNeighbors)
 
-        let matchedTiles = []
-        let currentTile = this.currentCell.assignedTile
-        if (randomNeighbor.i == this.currentCell.i + 1) //neighbor is on the right
-        {
-            matchedTiles = this.tiles.filter(t => t.canMatchWith(t.left, currentTile.right))
-        }
-        else if (randomNeighbor.i == this.currentCell.i - 1) //neighbor is on the left
-        {
-            matchedTiles = this.tiles.filter(t => t.canMatchWith(t.right, currentTile.left))
-        }
-        else if (randomNeighbor.j == this.currentCell.j + 1) //neighbor is on the bottom
-        {
-            matchedTiles = this.tiles.filter(t => t.canMatchWith(t.up, currentTile.down))
-        }
-        else //neighbor is on the top
-        {
-            matchedTiles = this.tiles.filter(t => t.canMatchWith(t.down, currentTile.up))
-        }
+    //         let matchedTiles = []
+    //         let currentTile = this.currentCell.assignedTile
+    //         if (randomNeighbor.i == this.currentCell.i + 1) //neighbor is on the right
+    //         {
+    //             matchedTiles = this.tiles.filter(t => t.canMatchWith(t.left, currentTile.right))
+    //         }
+    //         else if (randomNeighbor.i == this.currentCell.i - 1) //neighbor is on the left
+    //         {
+    //             matchedTiles = this.tiles.filter(t => t.canMatchWith(t.right, currentTile.left))
+    //         }
+    //         else if (randomNeighbor.j == this.currentCell.j + 1) //neighbor is on the bottom
+    //         {
+    //             matchedTiles = this.tiles.filter(t => t.canMatchWith(t.up, currentTile.down))
+    //         }
+    //         else //neighbor is on the top
+    //         {
+    //             matchedTiles = this.tiles.filter(t => t.canMatchWith(t.down, currentTile.up))
+    //         }
 
-        //filter the matchedTiles based on the visited neighbor tiles as well
+    //         //filter the matchedTiles based on the visited neighbor tiles as well
 
 
-        randomNeighbor.assignedTile = //this.tiles[0]
-            matchedTiles.length > 0 ? random(matchedTiles) : this.tiles[0];
+    //         randomNeighbor.assignedTile = //this.tiles[0]
+    //             matchedTiles.length > 0 ? random(matchedTiles) : this.tiles[0];
 
-        randomNeighbor.visited = true
-        this.visitedCells.push(randomNeighbor)
+    //         randomNeighbor.visited = true
+    //         this.visitedCells.push(randomNeighbor)
 
-        //https://en.wikipedia.org/wiki/Maze_generation_algorithm
-        /*
-Choose the initial cell, mark it as visited and push it to the stack
+    //         //https://en.wikipedia.org/wiki/Maze_generation_algorithm
+    //         /*
+    // Choose the initial cell, mark it as visited and push it to the stack
 
-While the stack is not empty
+    // While the stack is not empty
 
-Pop a cell from the stack and make it a current cell
-If the current cell has any neighbours which have not been visited
-  Push the current cell to the stack
-  Choose one of the unvisited neighbours
-  Remove the wall between the current cell and the chosen cell
-  Mark the chosen cell as visited and push it to the stack
-        */
+    // Pop a cell from the stack and make it a current cell
+    // If the current cell has any neighbours which have not been visited
+    //   Push the current cell to the stack
+    //   Choose one of the unvisited neighbours
+    //   Remove the wall between the current cell and the chosen cell
+    //   Mark the chosen cell as visited and push it to the stack
+    //         */
 
-    }
+    //     }
 
 
 }

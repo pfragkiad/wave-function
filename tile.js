@@ -1,13 +1,14 @@
 class Tile {
-    constructor(img,id, midpoints = null) {
-        this.image = img 
+    constructor(id, tilesInfo) {
+        this.image = tilesInfo.images[id]
         this.id = id
+        let midpoints = tilesInfo.midpoints
 
         //console.log(img)
 
-        this.width = img.width
-        this.height = img.height
-        this.density = img.pixelDensity()
+        this.width = this.image.width
+        this.height = this.image.height
+        this.density = this.image.pixelDensity()
 
         this.image.loadPixels()
         this.pixels = this.image.pixels

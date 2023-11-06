@@ -21,8 +21,7 @@ class Cell {
         if (this.assignedTile !== undefined) {
             this.options = [this.assignedTile]
         }
-        else 
-        {
+        else {
             this.options = []
             console.error(`Cannot select tile for Cell(${this.i},${this.j})!`)
         }
@@ -35,7 +34,7 @@ class Cell {
         return this.options.length
     }
 
-    reduceEntropy(currentCell) //this cell is the "neighbor" of the 
+    reduceEntropy(currentCell, tilesInfo = null) //this cell is the "neighbor" of the 
     {
         //keep only the tiles are compatible
         let currentTile = currentCell.assignedTile
@@ -45,17 +44,30 @@ class Cell {
             return
         }
 
-        if (this.i == currentCell.i + 1)   //neighbor is on the right
-            this.options = this.options.filter(t => t.canMatchWith(t.left, currentTile.right))
+        if (this.i == currentCell.i + 1) //neighbor is on the right
+        {
+            let exclusions = tilesInfo.exclusions.filter(e => e.contact === TileContacts.RIGHT_LEFT && e.first == currentTile.id).map(e => e.second)
+            // if(exclusions.length>0) 
+            //     console.log(`Found ${exclusions} exclusions`)
+            this.options = this.options.filter(t => t.canMatchWith(t.left, currentTile.right) && !exclusions.includes(t.id))
+        }
+        else if (this.i == currentCell.i - 1) //neighbor is on the left
+        {
+            let exclusions = tilesInfo.exclusions.filter(e => e.contact === TileContacts.RIGHT_LEFT && e.second == currentTile.id).map(e => e.first)
+            this.options = this.options.filter(t => t.canMatchWith(t.right, currentTile.left) && !exclusions.includes(t.id))
+        }
+        else if (this.j == currentCell.j + 1) //neighbor is on the bottom
+        {
+            let exclusions = tilesInfo.exclusions.filter(e => e.contact === TileContacts.DOWN_UP && e.first == currentTile.id).map(e => e.second)
+            this.options = this.options.filter(t => t.canMatchWith(t.up, currentTile.down) && !exclusions.includes(t.id))
+        }
+        else if (this.j == currentCell.j - 1) //neighbor is on the top
+        {
+            let exclusions = tilesInfo.exclusions.filter(e => e.contact === TileContacts.DOWN_UP && e.second == currentTile.id).map(e => e.first)
+            this.options = this.options.filter(t => t.canMatchWith(t.down, currentTile.up) && !exclusions.includes(t.id))
+        }
 
-        if (this.i == currentCell.i - 1) //neighbor is on the right
-            this.options = this.options.filter(t => t.canMatchWith(t.right, currentTile.left))
 
-        if (this.j == currentCell.j + 1) //neighbor is on the bottom
-            this.options = this.options.filter(t => t.canMatchWith(t.up, currentTile.down))
-
-        if (this.j == currentCell.j - 1) //neighbor is on the top
-            this.options = this.options.filter(t => t.canMatchWith(t.down, currentTile.up))
 
     }
 
